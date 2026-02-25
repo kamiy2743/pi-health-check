@@ -1,0 +1,10 @@
+[Unit]
+Description=Health check URLs
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=kamiy2743
+WorkingDirectory=/home/kamiy2743/workspace/health-check
+ExecStart=/home/kamiy2743/workspace/health-check/check.sh
