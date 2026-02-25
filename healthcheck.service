@@ -7,4 +7,5 @@ Wants=network-online.target
 Type=oneshot
 User=kamiy2743
 WorkingDirectory=/home/kamiy2743/workspace/health-check
-ExecStart=/home/kamiy2743/workspace/health-check/check.sh
+EnvironmentFile=/home/kamiy2743/workspace/health-check/.env
+ExecStart=/home/kamiy2743/workspace/health-check/check-go
