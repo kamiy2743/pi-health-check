@@ -30,7 +30,7 @@ type embed struct {
 func notifyDiff(client webhookClient, currentFailedURLs, added, resolved []string) error {
 	if len(added) == 0 && len(resolved) == 0 {
 		if len(currentFailedURLs) > 0 {
-			fmt.Fprintln(os.Stderr, "障害継続中のため通知をスキップします")
+			fmt.Fprintln(os.Stderr, "疎通不可が継続中のため通知をスキップします")
 		}
 		return nil
 	}
@@ -41,24 +41,24 @@ func notifyDiff(client webhookClient, currentFailedURLs, added, resolved []strin
 
 	switch {
 	case len(currentFailedURLs) == 0 && len(resolved) > 0:
-		title = "障害がすべて回復しました"
+		title = "疎通不可がすべて解消しました"
 		color = 0x2ECC71
 		fmt.Fprintln(os.Stderr, "状態変化: 全回復 (通知送信)")
 	case len(resolved) > 0:
-		title = "障害が一部回復しました"
+		title = "疎通不可が一部解消しました"
 		color = 0xF39C12
 		description = buildPartialRecoveryDescription(currentFailedURLs, resolved)
 		fmt.Fprintln(os.Stderr, "状態変化: 一部回復 (通知送信)")
 	case len(added) > 0 && len(resolved) == 0 && len(currentFailedURLs) == len(added):
-		title = "障害が発生しました"
+		title = "疎通不可が発生しました"
 		color = 0xE74C3C
 		description = buildCurrentFailuresDescription(currentFailedURLs)
-		fmt.Fprintln(os.Stderr, "状態変化: 障害発生 (通知送信)")
+		fmt.Fprintln(os.Stderr, "状態変化: 疎通不可発生 (通知送信)")
 	default:
-		title = "障害が増加しました"
+		title = "疎通不可が増加しました"
 		color = 0xE74C3C
 		description = buildCurrentFailuresDescription(currentFailedURLs)
-		fmt.Fprintln(os.Stderr, "状態変化: 障害増加 (通知送信)")
+		fmt.Fprintln(os.Stderr, "状態変化: 疎通不可増加 (通知送信)")
 	}
 
 	return sendDiscord(client, webhookPayload{
@@ -78,7 +78,7 @@ func buildCurrentFailuresDescription(currentFailedURLs []string) string {
 		return ""
 	}
 
-	lines := []string{"障害中"}
+	lines := []string{"疎通不可"}
 	for _, u := range currentFailedURLs {
 		lines = append(lines, fmt.Sprintf("⚠️ <%s>", u))
 	}
@@ -88,7 +88,7 @@ func buildCurrentFailuresDescription(currentFailedURLs []string) string {
 func buildPartialRecoveryDescription(currentFailedURLs, resolved []string) string {
 	lines := []string{}
 	if len(currentFailedURLs) > 0 {
-		lines = append(lines, "障害中")
+		lines = append(lines, "疎通不可")
 		for _, u := range currentFailedURLs {
 			lines = append(lines, fmt.Sprintf("⚠️ <%s>", u))
 		}
