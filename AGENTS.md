@@ -1,23 +1,17 @@
 ~/workspace/AGENTS.mdを読む
 
 ## 概要
-- このリポジトリは、Raspberry Pi 上で動かしている公開サイトのヘルスチェックを学習・運用するためのもの。
-- 主な目的は、`/health` エンドポイントの監視、異常検知、通知（例: Discord Webhook）、定期実行（`systemd timer`）を段階的に実装すること。
+- Raspberry Pi 上で公開しているサイト群のURLを定期的にヘルスチェックするための構成。
+- Go 製のワンショット実行バイナリを systemd timer で1分ごとに起動し、異常時は Discord に通知する。
+- ローカルURLと外部公開URLの両方を監視できる。
 
-## 最終目的
-- 複数の監視対象URL（ローカル / 外部公開）を定期的にヘルスチェックできるようにする。
-- すべてのURLを最後まで確認したうえで、失敗したURL一覧とエラー内容を取得できるようにする。
-- 異常時に Discord Webhook へ通知し、必要に応じて復旧通知も送れるようにする。
-- `systemd service` + `systemd timer` により、Raspberry Pi 起動後も継続して自動監視できるようにする。
+## 仕組み
+- 監視対象URLは `/home/kamiy2743/workspace/health-check/.conf` に列挙する。
+- 実行時は `DISCORD_WEBHOOK_URL`（`.env`）を読み込み、未設定ならエラー終了する。
+- 各URLに対してHTTP GETを実行し、2xx 以外を失敗として収集する（タイムアウト3秒）。
+- 直前の失敗URL一覧は `/run/healthcheck/state.json` に保存し、今回の結果と差分を計算する。
+- 変化があった場合のみ Discord に通知し、障害継続中は通知を抑制する。
 
-## 現在までの進捗
-- Nginx 側に `/health` エンドポイントを追加し、ローカルおよび外部URLで疎通確認できる状態にした。
-- `check.conf` を作成し、監視対象URLを設定ファイルで管理できるようにした。
-- `healthcheck.service`（`Type=oneshot`）を作成し、`systemd` 経由で手動実行できることを確認した。
-- `healthcheck.timer` を作成し、1分ごとの定期実行と `journalctl` でのログ確認ができることを確認した。
-- 障害テストとして Nginx 停止時の失敗（接続拒否 / 外部 `502`）と、復旧後の正常化を確認した。
-- Go 実装 `check.go` を追加し、複数URLのヘルスチェックを最後まで実行できるようにした。
-- `DISCORD_WEBHOOK_URL` を環境変数から読み込み、未設定時はエラー終了するようにした。
-- Discord 通知は Embed 形式にし、URL とエラー内容をフィールドで縦に並べる形式にした。
-- `check.sh` と `discord_payload.py` は試行途中の成果物として残っている（Go 版へ移行予定）。
-- `healthcheck.env` を使って Webhook URL を分離し、手動実行時は `set -a; source` で読み込む方針。
+## 通知仕様
+- すべて回復 / 一部回復 / 障害発生 / 障害増加の4パターンでメッセージを出し分ける。
+- Embed 形式で「障害中」「回復」のURL一覧を表示する。
