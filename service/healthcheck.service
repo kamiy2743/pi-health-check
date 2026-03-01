@@ -10,4 +10,4 @@ WorkingDirectory=/home/kamiy2743/workspace/health-check
 EnvironmentFile=/home/kamiy2743/workspace/health-check/.env
 RuntimeDirectory=healthcheck
 RuntimeDirectoryPreserve=yes
-ExecStart=/home/kamiy2743/workspace/health-check/check-go
+ExecStart=/home/kamiy2743/workspace/health-check/health-check
