@@ -1,4 +1,4 @@
-package main
+package healthcheck
 
 import (
 	"bytes"
@@ -62,14 +62,12 @@ func notifyDiff(client webhookClient, currentFailedURLs, added, resolved []strin
 	}
 
 	return sendDiscord(client, webhookPayload{
-		Embeds: []embed{
-			{
-				Title:       title,
-				Description: description,
-				Color:       color,
-				Timestamp:   time.Now().Format(time.RFC3339),
-			},
-		},
+		Embeds: []embed{{
+			Title:       title,
+			Description: description,
+			Color:       color,
+			Timestamp:   time.Now().Format(time.RFC3339),
+		}},
 	})
 }
 
@@ -116,7 +114,7 @@ func sendDiscord(client webhookClient, payload webhookPayload) error {
 		return err
 	}
 	defer resp.Body.Close()
-	io.Copy(io.Discard, resp.Body)
+	_, _ = io.Copy(io.Discard, resp.Body)
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return fmt.Errorf("status: %s", resp.Status)

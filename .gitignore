@@ -1,2 +1,2 @@
-.env
-health-check
+secrets/*
+!.gitkeep
