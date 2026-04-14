@@ -13,7 +13,7 @@ COPY --from=builder /app/health-check /app/health-check
 COPY ./urls /app/urls
 
 RUN apt-get update \
-    && apt-get install -y ca-certificates \
+    && apt-get install -y --no-install-recommends ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd --gid 1000 go
